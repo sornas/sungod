@@ -23,6 +23,7 @@
 
 /// The struct that holds all the random state. Can be instanced
 /// as many times as you want!
+#[derive(Copy, Clone, Debug)]
 pub struct Ra {
     state: [u64; 4],
     counter: u64,
