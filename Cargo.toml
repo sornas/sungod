@@ -3,6 +3,12 @@ name = "sungod"
 version = "0.1.0"
 authors = ["Edvard Thörnros <edvard.thornros@gmail.com>"]
 edition = "2018"
+description = "0-Dependency random numbers to brighten your day"
+repository = "https://github.com/FredTheDino/sungod"
+license = "MIT OR Apache-2.0"
+keywords = ["gamedev", "random", "sun", "depend"]
+categories = ["algorithms", "embedded", "game-development", "no-std"]
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
