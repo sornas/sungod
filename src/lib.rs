@@ -1,3 +1,5 @@
+#![no_std]
+
 //! A simple and super slim random crate, gifted from the sun God!
 //!
 //! If you need decent random numbers pretty speedily, and hate
@@ -134,8 +136,7 @@ mod tests {
     use crate::Ra;
 
     fn seed() -> u64 {
-        use std::time::{SystemTime, UNIX_EPOCH};
-        (SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() >> 4) as u64
+        super::DEFAULT_RANDOM_SEED
     }
 
     #[test]
@@ -199,15 +200,11 @@ mod tests {
 
     #[test]
     fn random_enough() {
-        use std::collections::HashMap;
         let mut ra = Ra::new(seed());
-        let mut histogram = HashMap::new();
-        for n in 0..u8::MAX {
-            histogram.insert(n, 0);
-        }
+        let mut histogram = [0_u64; u8::MAX as usize + 1];
         const NUM_SAMPLES: u32 = 1000000;
         for _ in 0..NUM_SAMPLES {
-            *histogram.entry(ra.sample::<u8>()).or_insert(0) += 1;
+            histogram[ra.sample::<u8>() as usize] += 1;
         }
 
         /// mu  = n * p
@@ -216,7 +213,7 @@ mod tests {
         const SAMPLES: f64 = NUM_SAMPLES as f64;
         const MEAN: f64 = SAMPLES / 256.0;
         const VAR: f64 = MEAN * (1.0 - 1.0 / 256.0);
-        for v in histogram.values() {
+        for v in &histogram {
             assert!(*v > (MEAN - VAR.sqrt() * 5.0) as u64);
         }
     }
