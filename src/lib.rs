@@ -1,4 +1,4 @@
-#![cfg_attr(not(std), no_std)]
+#![cfg_attr(not(feature="std"), no_std)]
 
 //! A simple and super slim random crate, gifted from the sun God!
 //!
@@ -47,10 +47,10 @@ pub trait Sample {
 }
 
 impl Ra {
-    #[cfg(std)]
+    #[cfg(feature="std")]
     pub fn new_random() -> Self {
         use std::time::{SystemTime, UNIX_EPOCH};
-        new_with((SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() >> 4) as u64)
+        Self::new_with((SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() >> 4) as u64)
     }
 
     pub fn new_with(seed: u64) -> Self {
