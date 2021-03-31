@@ -1,4 +1,4 @@
-#![no_std]
+#![cfg_attr(not(std), no_std)]
 
 //! A simple and super slim random crate, gifted from the sun God!
 //!
@@ -36,7 +36,7 @@ pub const DEFAULT_RANDOM_SEED: u64 = 0xCAFEBABEDEADBEEF;
 
 impl Default for Ra {
     fn default() -> Self {
-        Self::new(DEFAULT_RANDOM_SEED)
+        Self::new_with(DEFAULT_RANDOM_SEED)
     }
 }
 
@@ -47,7 +47,13 @@ pub trait Sample {
 }
 
 impl Ra {
-    pub fn new(seed: u64) -> Self {
+    #[cfg(std)]
+    pub fn new_random() -> Self {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        new_with((SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() >> 4) as u64)
+    }
+
+    pub fn new_with(seed: u64) -> Self {
         Self {
             state: [0x70A7A712EAF07AA2 ^ seed,
                     0xE96A320D4BC6BDDB ^ seed,
@@ -135,19 +141,24 @@ mod tests {
 
     use crate::Ra;
 
-    fn seed() -> u64 {
-        super::DEFAULT_RANDOM_SEED
+    #[cfg(std)]
+    fn new() -> Ra {
+        Ra::new_random()
+    }
+    #[cfg(not(std))]
+    fn new() -> Ra {
+        Ra::default()
     }
 
     #[test]
     fn something_random() {
-        let mut ra = Ra::new(seed());
+        let mut ra = new();
         assert_ne!(ra.sample::<u64>(), ra.sample::<u64>());
     }
 
     #[test]
     fn negative_random() {
-        let mut ra = Ra::new(seed());
+        let mut ra = new();
         for _ in 0..10 {
             if ra.sample::<i64>() < 0 {
                 return;
@@ -158,7 +169,7 @@ mod tests {
 
     #[test]
     fn valid_float_range() {
-        let mut ra = Ra::new(seed());
+        let mut ra = new();
         for _ in 0..1000000 {
             let sample = ra.sample::<f64>();
             assert!(sample >= 0.0);
@@ -169,7 +180,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn edge_coverage() {
-        let mut ra = Ra::new(seed());
+        let mut ra = new();
         let mut count = 0;
         const NUM_SAMPLES: u32 = 1000000;
         for _ in 0..NUM_SAMPLES {
@@ -185,7 +196,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn split() {
-        let mut ra = Ra::new(seed());
+        let mut ra = new();
         let mut count = 0;
         const NUM_SAMPLES: u32 = 1000000;
         for _ in 0..NUM_SAMPLES {
@@ -200,7 +211,7 @@ mod tests {
 
     #[test]
     fn random_enough() {
-        let mut ra = Ra::new(seed());
+        let mut ra = new();
         let mut histogram = [0_u64; u8::MAX as usize + 1];
         const NUM_SAMPLES: u32 = 1000000;
         for _ in 0..NUM_SAMPLES {

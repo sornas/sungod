@@ -14,6 +14,13 @@ fn main() {
 }
 ```
 
+If you want to run in no\_std-environments you need to build without default
+features. E.g., in your Cargo.toml:
+
+```
+sungod = { version = "x.y", default-features = false }
+```
+
 This is an implementation of xorwow, in a nice slim package,
 with some extra type safety. If you want to support randomizing
 more exotic types, you'll have to implement it yourself. No
